@@ -11,3 +11,13 @@ Tested in the Codex in-app browser against the local HTML:
 - JavaScript syntax and git whitespace checks pass.
 
 Still requires physical-device verification: iPhone Safari sound/touch behavior and hardware MIDI bend-range/slide compatibility. No TB-303 reference image was attached to this chat; styling follows the written brief.
+
+## Full instrument enclosure and keyboard — 2026-11-02
+
+- Replaced the dark page with a unified silver enclosure, black panel printing, restrained red indicators and hardware-style buttons.
+- Replaced per-step pitch dropdowns with a 13-key chromatic keyboard, selected-step note display, octave transpose and Accent/Slide/Rest buttons. Pitch entry auditions a note only while playback is stopped; rests stay rests until explicitly toggled.
+- Sixteen-step banks cover every step up to the existing 256-step maximum. Verified first/last bank boundaries, selection after shrinking a pattern, octave boundaries at MIDI 24/84, mode switching and independent flag editing.
+- Clicked a black key and verified D#2 in the note display, selected the second bank, and checked Play/Stop.
+- At 390px, the keyboard, eight-column step rows and editing controls fit without document horizontal overflow.
+- Generator, MIDI encoding and drum scheduling algorithms are unchanged by this redesign. The prior binary MIDI and polymeter checks still apply.
+- Physical iPhone Safari touch/audio verification remains outstanding.
