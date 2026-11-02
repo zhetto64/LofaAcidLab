@@ -21,3 +21,11 @@ Still requires physical-device verification: iPhone Safari sound/touch behavior 
 - At 390px, the keyboard, eight-column step rows and editing controls fit without document horizontal overflow.
 - Generator, MIDI encoding and drum scheduling algorithms are unchanged by this redesign. The prior binary MIDI and polymeter checks still apply.
 - Physical iPhone Safari touch/audio verification remains outstanding.
+
+## Compact controller layout — 2026-11-02
+
+- Desktop generator and synthesizer now share a two-column row above the sequencer/keyboard. Knob diameter is 50px (previously 64px), with a 72px scale ring. Reduced panel spacing and step heights; preserved the keyboard styling and all controls.
+- Instructions moved to native details/summary; no musical controller is hidden. Mobile keeps a stacked layout with four synth knobs per row.
+- Browser measurements at the supplied screenshot size, 1269×998: every visible controller fits inside the viewport; no horizontal or vertical document overflow. At 1280×720, keyboard bottom is at y=672 and all musical controllers fit; help/footer may scroll.
+- Checked 320px and 390px widths without horizontal overflow; clicked keyboard pitch and Accent, switched banks, changed cutoff with a keyboard arrow, and verified Play/Stop. Browser error log empty.
+- Audio, sequencer and MIDI JavaScript unchanged.
