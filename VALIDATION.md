@@ -29,3 +29,12 @@ Still requires physical-device verification: iPhone Safari sound/touch behavior 
 - Browser measurements at the supplied screenshot size, 1269×998: every visible controller fits inside the viewport; no horizontal or vertical document overflow. At 1280×720, keyboard bottom is at y=672 and all musical controllers fit; help/footer may scroll.
 - Checked 320px and 390px widths without horizontal overflow; clicked keyboard pitch and Accent, switched banks, changed cutoff with a keyboard arrow, and verified Play/Stop. Browser error log empty.
 - Audio, sequencer and MIDI JavaScript unchanged.
+
+## Musical funk motif generator — 2026-11-20
+
+- Added FUNK / MOTIF: original syncopated rhythm skeletons, a reused one-bar hook and tail variations in bars 2/4. Scale constrains pitches; density changes note count, chaos changes phrase endings, leaps remain controlled, and slide connections stay within an octave.
+- Funk defaults: C Dorian, 112 BPM, 16 steps, 4 bars. Classic and AFX are still available. FUNK mutation preserves the first half of each bar and mutates approximately 25% of the whole pattern.
+- Each step now has editable gate length. Generated ghost-note velocities and gates are shared between MIDI encoding and Web Audio playback. Slide holds a note to the next step; export finishes with a centered pitch bend.
+- `node --test tests/music.test.cjs`: 4 passing tests. Covers 640 combinations of scale/steps/bars, density and zero-chaos endpoints, deterministic MIDI pitch/gate/velocity/rest/tempo/bend parsing, and 100 generated exports with balanced monophonic note events.
+- Browser: verified gate editing, playback/stop, mutation, bank changes, all three modes, actual .mid download, and 320px/390px layouts without horizontal overflow. No browser errors observed.
+- Reference direction: Aphex Twin's "korg funk 5 [Audio]" (https://www.youtube.com/watch?v=hUT01p-C2xo). This implementation is an original generative approach, not a transcription or an audio-derived reconstruction. No audio analysis or microtuning was performed. Korg's official monologue page documents motion sequencing and slide (https://www.korg.com/uk/products/synthesizers/monologue/); these timbral capabilities are not reproduced by a note-only MIDI phrase.
