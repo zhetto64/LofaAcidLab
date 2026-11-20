@@ -38,3 +38,11 @@ Still requires physical-device verification: iPhone Safari sound/touch behavior 
 - `node --test tests/music.test.cjs`: 4 passing tests. Covers 640 combinations of scale/steps/bars, density and zero-chaos endpoints, deterministic MIDI pitch/gate/velocity/rest/tempo/bend parsing, and 100 generated exports with balanced monophonic note events.
 - Browser: verified gate editing, playback/stop, mutation, bank changes, all three modes, actual .mid download, and 320px/390px layouts without horizontal overflow. No browser errors observed.
 - Reference direction: Aphex Twin's "korg funk 5 [Audio]" (https://www.youtube.com/watch?v=hUT01p-C2xo). This implementation is an original generative approach, not a transcription or an audio-derived reconstruction. No audio analysis or microtuning was performed. Korg's official monologue page documents motion sequencing and slide (https://www.korg.com/uk/products/synthesizers/monologue/); these timbral capabilities are not reproduced by a note-only MIDI phrase.
+
+## Probabilistic sustained notes — 2026-11-20
+
+- Added LONG NOTE probability (0–100%, Funk default 25%). Eligible notes probabilistically occupy 2, 3, 4, 6 or 8 steps; generated spans stop at bar ends. At 0%, generated notes are all single-step.
+- Shared `phrasePlan()` drives MIDI and preview: subsequent covered steps are HOLD continuations, not new note-ons. GATE also supports manual 2–16 step lengths, clipped to the pattern end. Selecting HOLD selects its originating note. Slide is disabled on sustained notes.
+- Preview gain holds until a brief release rather than fading throughout the entire long note. STOP cancels active/future bass voices; new note onsets truncate an existing sustained voice to preserve monophonic playback during editing.
+- `node --test tests/music.test.cjs`: 7 passing tests. Added probability endpoints/statistical direction, long-note MIDI timing and skipped onsets, all-size monophony/loop clipping, and preview gain sustain scheduling.
+- Browser: 0% produced zero HOLD cells; 100% produced HOLD cells; manual eight-step edit and HOLD selection worked; Play/Stop and actual MIDI download succeeded without logged errors. Parsed the downloaded file: first eight-step note lasted 956 ticks (~1.99 beats) with seven long notes among 28 note events. 390px layout has no horizontal overflow.

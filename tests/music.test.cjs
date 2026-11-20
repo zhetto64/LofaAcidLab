@@ -36,3 +36,33 @@ test('generated MIDI is balanced, monophonic and correctly sized over 100 seeds'
   assert.ok(new Set(events.filter(e=>e.status===128).map((e,i)=>e.tick)).size>1);
  }
 });
+test('long-note probability controls actual sustained MIDI durations',()=>{
+ const c={...config,steps:16,bars:4};let longCount=0,shortCount=0;
+ for(let seed=0;seed<100;seed++){
+  const off=buildFunk({...c,longNote:0},rng(seed)),on=buildFunk({...c,longNote:1},rng(seed));
+  assert.ok(box.phrasePlan(off).notes.every(e=>e.span===1));
+  assert.ok(box.phrasePlan(on).notes.some(e=>e.span>1));
+  const countLong=seq=>box.phrasePlan(seq).notes.filter(e=>e.span>1).length;
+  shortCount+=countLong(buildFunk({...c,longNote:.1},rng(seed)));longCount+=countLong(buildFunk({...c,longNote:.7},rng(seed)));
+ }
+ assert.ok(longCount>shortCount);
+ const seq=[{n:36,r:false,len:4,a:false},{n:43,r:false},{n:48,r:false},{n:55,r:false},{n:41,r:false,g:.5}],events=parse(makeMidiBytes(seq,112));
+ assert.deepEqual(events.filter(e=>e.status===144).map(e=>[e.tick,e.data[0]]),[[0,36],[480,41]]);
+ assert.deepEqual(events.filter(e=>e.status===128).map(e=>e.tick),[476,540]);
+ assert.deepEqual(Array.from(box.phrasePlan(seq).owners),[0,0,0,0,4]);
+});
+test('long notes clip at loop end and remain monophonic for all phrase sizes',()=>{
+ for(let steps=1;steps<=32;steps++)for(const bars of [1,2,4,8]){
+  const seq=buildFunk({...config,steps,bars,longNote:1},rng(steps*bars));let active=null;
+  for(const event of box.phrasePlan(seq).notes){assert.ok(event.start+event.span<=seq.length);assert.ok(event.start%steps+event.span<=steps)}
+  for(const e of parse(makeMidiBytes(seq,112))){if(e.status===144){assert.equal(active,null);active=e.data[0]}if(e.status===128){assert.equal(active,e.data[0]);active=null}}assert.equal(active,null);
+ }
+ const seq=[{n:36,r:true},{n:48,r:false,len:16}];assert.equal(box.phrasePlan(seq).notes[0].span,1);assert.equal(parse(makeMidiBytes(seq,112)).at(-1).tick,240);
+});
+test('preview gain sustains a long note until its release',()=>{
+ const calls=[],param=()=>({value:0,setValueAtTime:(value,t)=>calls.push(['set',value,t]),exponentialRampToValueAtTime:(value,t)=>calls.push(['ramp',value,t])});
+ const context={currentTime:0,createOscillator:()=>({frequency:param(),connect(){},disconnect(){},start(){},stop:t=>calls.push(['stop',t])}),createBiquadFilter:()=>({Q:{},frequency:param(),connect(){},disconnect(){}}),createGain:()=>({gain:param(),connect(){},disconnect(){}})};
+ const audioBox={ctx:context,mix:{},waveform:()=> 'sawtooth',v:id=>({res:75,cutoff:700,env:70,decay:260}[id]),hz:n=>440*Math.pow(2,(n-69)/12),voices:new Set(),setTimeout:()=>1,clearTimeout(){},updateVoice(){}};
+ vm.createContext(audioBox);const source=html.split('function beep(')[1].split('function drum(')[0];vm.runInContext('function beep('+source,audioBox);audioBox.beep(36,1,.125,false,null,7.97,85);
+ const sustain=calls.find(e=>e[0]==='set'&&e[1]===.23&&e[2]>1.9);assert.ok(sustain,'constant gain reaches the end of the long note');assert.ok(calls.find(e=>e[0]==='stop')[1]>1.99);
+});
